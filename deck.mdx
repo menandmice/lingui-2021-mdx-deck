@@ -1,0 +1,430 @@
+import { CodeSurfer, CodeSurferColumns, Step } from 'code-surfer';
+import { vsDark } from "@code-surfer/themes"
+
+<Header>
+
+## Blackstar - i18n
+
+<img src="./mm-logo.svg" style={{ position: 'absolute', top: 15, right: 40, width: 200, height: 50 }} />
+
+</Header>
+
+# LinguiJS
+
+Please turn on your webcam so I don't feel like I'm speaking to a wall.
+> ( Unless you are naked of course )
+
+---
+
+# Why are we switching to LinguiJS?
+
+---
+
+# Let's go over our current solution for a bit.
+<ul>
+	<Steps>
+		<li>Homemade / Unique</li>
+		<li>Not very scalable</li>
+		<li>Not following any industry standards</li>
+		<li>Forces developers to maintain each language by manually editing po.ts files</li>
+	</Steps>
+</ul>
+
+---
+
+# Why is LinguiJS a good alternative for us?
+<ol>
+	<Steps>
+		<li>Utilizes industry standards (GNU's gettext internationalization system)</li>
+		<li>Has powerful tools</li>
+		<li>Unopinionated, thus fits with most workflows and/or frameworks</li>
+		<li>Improves DX by keeping the code clean and readable</li>
+		<li>Genearates gettext po files that we simply hand over to translators</li>
+	</Steps>
+</ol>
+
+---
+
+# So how have we been implementing translations so far?
+
+---
+
+<Notes>
+
+- This is what we have been doing.
+- Importing external po.ts files which contains an object with all our contextual text strings.
+- This has many disadvantages.
+- The bad thing is that the po file is usually out of sight, so we often lack the full context.
+
+</Notes>
+
+<CodeSurferColumns themes={[vsDark]}>
+
+<Step>
+
+```ts
+// Let's see...
+```
+
+<div />
+
+</Step>
+
+<Step>
+
+```ts 1:2
+// Let's see...
+// We create a file called Component.po.ts...
+```
+
+<img src="./drake-yes.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts 4:27
+// Let's see...
+// We create a file called Component.po.ts
+
+// It looks something like this
+
+export default {
+	myHeaderText: {
+		en: 'Wafer fruitcake pie tart donut cheesecake',
+	},
+	myEssay: {
+		en: 'Biscuit jelly pudding macaroon ice cream pastry.',
+	},
+	myPluralEssay: {
+		en: 'Many biscuit jelly pudding macaroon ice cream pastries.'
+	},
+	myTypes: {
+		normal: {
+			en: 'Normal',
+		},
+		special: {
+			en: 'Special',
+		},
+	},
+	myButtonText: {
+		en: 'Eat me',
+	},
+};
+```
+
+<img src="./drake-no.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts
+// Let's see...
+// We create a file called Component.po.ts
+
+// It looks something like this
+
+export default {
+	myHeaderText: {
+		en: 'Wafer fruitcake pie tart donut cheesecake',
+	},
+	myEssay: {
+		en: 'Biscuit jelly pudding macaroon ice cream pastry.',
+	},
+	myPluralEssay: {
+		en: 'Many biscuit jelly pudding macaroon ice cream pastries.'
+	},
+	myTypes: {
+		normal: {
+			en: 'Normal',
+		},
+		special: {
+			en: 'Special',
+		},
+	},
+	myButtonText: {
+		en: 'Eat me',
+	},
+};
+
+// Then we create our component and import our po.ts file!
+// Brilliant, right?
+
+import { t } from 'common/i18n';
+import po from './Component.po';
+
+export function Component({ plural, type }) {
+	return (
+		<Layout title={t(po.myHeaderText)}>
+			<Text>{t(plural ? po.myEssay : po.myPluralEssay)}</Text>
+			<Type>{t(po.myTypes[type])}</Type>
+			<Button>{t(po.myButtonText)}</Button>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-no.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts
+// Let's see...
+// We create a file called Component.po.ts
+
+// It looks something like this
+
+export default {
+	myHeaderText: {
+		en: 'Wafer fruitcake pie tart donut cheesecake',
+	},
+	myEssay: {
+		en: 'Biscuit jelly pudding macaroon ice cream pastry.',
+	},
+	myPluralEssay: {
+		en: 'Many biscuit jelly pudding macaroon ice cream pastries.'
+	},
+	myTypes: {
+		normal: {
+			en: 'Normal',
+		},
+		special: {
+			en: 'Special',
+		},
+	},
+	myButtonText: {
+		en: 'Eat me',
+	},
+};
+
+// Then we create our component and import our po.ts file!
+// Brilliant, right?
+
+import { t } from 'common/i18n';
+import po from './Component.po';
+
+export function Component({ plural, type }) {
+	return (
+		<Layout title={t(po.myHeaderText)}>
+			<Text>{t(plural ? po.myEssay : po.myPluralEssay)}</Text>
+			<Type>{t(po.myTypes[type])}</Type>
+			<Button>{t(po.myButtonText)}</Button>
+		</Layout>
+	);
+}
+
+// No, this actually kinda sucks!
+```
+
+<img src="./drake-no.png" style={{ width: 500 }} />
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+# So what's wrong here?
+<ul>
+	<Steps>
+		<li>Usually when we are coding, these po.ts files are out of sight.</li>
+		<li>This means we are pretty much blind to gramar mistakes and we tend to miss out on the context.</li>
+		<li>...todo</li>
+		<li>...todo</li>
+	</Steps>
+</ul>
+
+---
+
+# How does LinguiJS improve this?
+
+---
+
+<CodeSurferColumns themes={[vsDark]}>
+
+<Step>
+
+```ts
+// Let's say we have this untranslated naive component
+
+export function Component({ count }) {
+	return (
+		<Layout title="Wafer fruitcake pie tart donut cheesecake">
+			<Text>{count} biscuit jelly pudding macaroon ice cream pastries.</Text>
+			<Button>Eat me</Button>
+		</Layout>
+	);
+}
+```
+
+<div />
+
+</Step>
+
+<Step>
+
+```ts
+// Let's say we have this untranslated naive component
+// We can start by importing some macros.
+
+import {
+	t, 		// for pure strings
+	Trans 	// for wrapping strings inside JSX
+} from '@lingui/macro';
+
+export function Component({ count }) {
+	return (
+		<Layout title="Wafer fruitcake pie tart donut cheesecake">
+			<Text>{count} biscuit jelly pudding macaroon ice cream pastries.</Text>
+			<Button>Eat me</Button>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-yes.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts 3:9,13:18
+// Let's say we have this untranslated naive component
+// We can start by importing some macros.
+// Now put them so use by turning the layout title to a translated
+// string and wrap the <Trans> component around the rest.
+
+import {
+	t, 		// for pure strings
+	Trans 	// for wrapping strings inside JSX
+} from '@lingui/macro';
+
+export function Component({ count }) {
+	return (
+		<Layout title={t`Wafer fruitcake pie tart donut cheesecake`}>
+			<Trans>
+				<Text>{count} biscuit jelly pudding macaroon ice cream pastries.</Text>
+				<Button>Eat me</Button>
+			</Trans>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-yes2.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts 5,16
+// Let's say we have this untranslated naive component
+// We can start by importing some macros.
+// Now put them so use by turning the layout title to a translated
+// string and wrap the <Trans> component around the rest.
+// Ok, wait a minute. What if we only have one pastry?
+
+import {
+	t, 		// for pure strings
+	Trans 	// for wrapping strings inside JSX
+} from '@lingui/macro';
+
+export function Component({ count }) {
+	return (
+		<Layout title={t`Wafer fruitcake pie tart donut cheesecake`}>
+			<Trans>
+				<Text>{count} biscuit jelly pudding macaroon ice cream pastries.</Text>
+				<Button>Eat me</Button>
+			</Trans>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-yes2.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts
+// Let's say we have this untranslated naive component
+// We can start by importing some macros.
+// Now put them so use by turning the layout title to a translated
+// string and wrap the <Trans> component around the rest.
+// Ok, wait a minute. What if we only have one pastry?
+// Not a problem! Let's add the plural macro.
+
+import {
+	t, 		// for pure strings
+	Trans 	// for wrapping strings inside JSX
+	plural,	// for pluralizing strings
+} from '@lingui/macro';
+
+export function Component({ count }) {
+	return (
+		<Layout title={t`Wafer fruitcake pie tart donut cheesecake`}>
+			<Text>
+				{plural(count, {
+					one: 'Biscuit jelly pudding macaroon ice cream pastry.',
+					other: `${count} biscuit jelly pudding macaroon ice cream pastries.`,
+				)}
+			</Text>
+			<Trans>
+				<Button>Eat me</Button>
+			</Trans>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+```ts
+// Let's say we have this untranslated naive component
+// We can start by importing some macros.
+// Now put them so use by turning the layout title to a translated
+// string and wrap the <Trans> component around the rest.
+// Ok, wait a minute. What if we only have one pastry?
+// Alternatively, we can use the <Plural> component
+
+import {
+	t, 		// for pure strings
+	Trans 	// for wrapping strings inside JSX
+	Plural,	// for pluralizing strings inside JSX
+} from '@lingui/macro';
+
+export function Component({ count }) {
+	return (
+		<Layout title={t`Wafer fruitcake pie tart donut cheesecake`}>
+			<Text>
+				<Plural
+					value={count}
+					one="Biscuit jelly pudding macaroon ice cream pastry."
+					other={`${count} biscuit jelly pudding macaroon ice cream pastries.`}
+				/>
+			</Text>
+			<Trans>
+				<Button>Eat me</Button>
+			</Trans>
+		</Layout>
+	);
+}
+```
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+## The End, Motherfucker!
