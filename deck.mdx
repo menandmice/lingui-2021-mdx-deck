@@ -9,28 +9,34 @@ import { vsDark } from "@code-surfer/themes"
 
 </Header>
 
+[//]: # (######################################################### SLIDE 0 #########################################################)
+
 # LinguiJS
 
 Please turn on your webcam so I don't feel like I'm speaking to a wall.
 > ( Unless you are naked of course )
 
 ---
+[//]: # (######################################################### SLIDE 1 #########################################################)
 
 # Why are we switching to LinguiJS?
 
 ---
+[//]: # (######################################################### SLIDE 2 #########################################################)
 
-# Let's go over our current solution for a bit.
+# Let's go over our current solution:
 <ul>
 	<Steps>
 		<li>Homemade / Unique</li>
-		<li>Not very scalable</li>
 		<li>Not following any industry standards</li>
+		<li>Not very scalable</li>
+		<li>Makes our code less readable</li>
 		<li>Forces developers to maintain each language by manually editing po.ts files</li>
 	</Steps>
 </ul>
 
 ---
+[//]: # (######################################################### SLIDE 3 #########################################################)
 
 # Why is LinguiJS a good alternative for us?
 <ol>
@@ -44,10 +50,12 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 </ol>
 
 ---
+[//]: # (######################################################### SLIDE 4 #########################################################)
 
 # So how have we been implementing translations so far?
 
 ---
+[//]: # (######################################################### SLIDE 5 #########################################################)
 
 <Notes>
 
@@ -62,7 +70,7 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 
 <Step>
 
-```ts
+```js
 // Let's see...
 ```
 
@@ -72,9 +80,9 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 
 <Step>
 
-```ts 1:2
+```js 1:2
 // Let's see...
-// We create a file called Component.po.ts...
+// We create a file called Component.po.ts
 ```
 
 <img src="./drake-yes.png" style={{ width: 500 }} />
@@ -83,7 +91,7 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 
 <Step>
 
-```ts 4:27
+```js 4:27
 // Let's see...
 // We create a file called Component.po.ts
 
@@ -113,13 +121,13 @@ export default {
 };
 ```
 
-<img src="./drake-no.png" style={{ width: 500 }} />
+<img src="./drake-yes.png" style={{ width: 500 }} />
 
 </Step>
 
 <Step>
 
-```ts
+```js
 // Let's see...
 // We create a file called Component.po.ts
 
@@ -165,13 +173,13 @@ export function Component({ plural, type }) {
 }
 ```
 
-<img src="./drake-no.png" style={{ width: 500 }} />
+<img src="./drake-yes.png" style={{ width: 500 }} />
 
 </Step>
 
 <Step>
 
-```ts
+```js
 // Let's see...
 // We create a file called Component.po.ts
 
@@ -226,28 +234,40 @@ export function Component({ plural, type }) {
 </CodeSurferColumns>
 
 ---
+[//]: # (######################################################### SLIDE 6 #########################################################)
 
 # So what's wrong here?
 <ul>
 	<Steps>
 		<li>Usually when we are coding, these po.ts files are out of sight.</li>
-		<li>This means we are pretty much blind to gramar mistakes and we tend to miss out on the context.</li>
-		<li>...todo</li>
-		<li>...todo</li>
+		<li>This means we have a blind spot to gramar mistakes and context.</li>
+		<li>We have translation files all over the place, making the codebase very noisy.</li>
+		<li>
+			It adds extra steps when searching for code based on texts.
+			<ol>
+				<li>Search for text and open the po.ts file</li>
+				<li>Find the object property name</li>
+				<li>Search for either "po.propertyName" or "translations.propertyName"</li>
+				<li>You have found your code</li>
+			</ol>
+		</li>
+		<li>And probably more that I haven't even thought of.</li>
 	</Steps>
 </ul>
 
 ---
+[//]: # (######################################################### SLIDE 7 #########################################################)
 
 # How does LinguiJS improve this?
 
 ---
+[//]: # (######################################################### SLIDE 8 #########################################################)
 
 <CodeSurferColumns themes={[vsDark]}>
 
 <Step>
 
-```ts
+```js
 // Let's say we have this untranslated naive component
 
 export function Component({ count }) {
@@ -266,7 +286,7 @@ export function Component({ count }) {
 
 <Step>
 
-```ts
+```js
 // Let's say we have this untranslated naive component
 // We can start by importing some macros.
 
@@ -291,7 +311,7 @@ export function Component({ count }) {
 
 <Step>
 
-```ts 3:9,13:18
+```js 3:9,13:18
 // Let's say we have this untranslated naive component
 // We can start by importing some macros.
 // Now put them so use by turning the layout title to a translated
@@ -320,12 +340,12 @@ export function Component({ count }) {
 
 <Step>
 
-```ts 5,16
+```js 5,16
 // Let's say we have this untranslated naive component
 // We can start by importing some macros.
 // Now put them so use by turning the layout title to a translated
 // string and wrap the <Trans> component around the rest.
-// Ok, wait a minute. What if we only have one pastry?
+// Oh, wait a minute. What if we only have one pastry?
 
 import {
 	t, 		// for pure strings
@@ -344,18 +364,18 @@ export function Component({ count }) {
 }
 ```
 
-<img src="./drake-yes2.png" style={{ width: 500 }} />
+<img src="./drake-yes2-eyes.png" style={{ width: 500 }} />
 
 </Step>
 
 <Step>
 
-```ts
+```js
 // Let's say we have this untranslated naive component
 // We can start by importing some macros.
 // Now put them so use by turning the layout title to a translated
 // string and wrap the <Trans> component around the rest.
-// Ok, wait a minute. What if we only have one pastry?
+// Oh, wait a minute. What if we only have one pastry?
 // Not a problem! Let's add the plural macro.
 
 import {
@@ -381,18 +401,19 @@ export function Component({ count }) {
 }
 ```
 
-<img src="./drake-yes3.png" style={{ width: 500 }} />
+<img src="./drake-yes2.png" style={{ width: 500 }} />
 
 </Step>
 
 <Step>
 
-```ts
+```js
 // Let's say we have this untranslated naive component
 // We can start by importing some macros.
 // Now put them so use by turning the layout title to a translated
 // string and wrap the <Trans> component around the rest.
-// Ok, wait a minute. What if we only have one pastry?
+// Oh, wait a minute. What if we only have one pastry?
+// Not a problem! Let's add the plural macro.
 // Alternatively, we can use the <Plural> component
 
 import {
@@ -419,12 +440,13 @@ export function Component({ count }) {
 }
 ```
 
-<img src="./drake-yes3.png" style={{ width: 500 }} />
+<img src="./drake-yes2.png" style={{ width: 500 }} />
 
 </Step>
 
 </CodeSurferColumns>
 
 ---
+[//]: # (######################################################### SLIDE 9 #########################################################)
 
 ## The End, Motherfucker!
