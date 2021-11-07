@@ -243,7 +243,7 @@ export function Component({ plural, type }) {
 		<li>This means we have a blind spot to gramar mistakes and context.</li>
 		<li>We have translation files all over the place, making the codebase very noisy.</li>
 		<li>
-			And my personal "favorite". It adds extra steps when searching for code based on texts.
+			Adds extra steps when searching for code based on text:
 			<ol>
 				<li>Search for text and open the po.ts file</li>
 				<li>Find the object property name</li>
@@ -456,7 +456,7 @@ export function Component({ count }) {
 		<li>Sort of, but not really.</li>
 		<li>We do need to use a CLI command to extract the translations from the code.</li>
 		<li>We did however install husky which adds a git hook that handles extracting translations on staged files.</li>
-		<li>Turns out this partial extraction has a bug so we disabled it for now.</li>
+		<li>Turns out this partial extraction has a bug so we disabled it for the time being.</li>
 		<li>For now, we are forced to extract manually per PR to keep the po files in sync.</li>
 		<li>But we could make the pipelines handle this for us until this bug has been resolved. (topic for discussion later)</li>
 		<li>There is also a CLI command for compiling the po files, but we don't need it since we are using a webpack plugin for it</li>
@@ -470,6 +470,12 @@ export function Component({ count }) {
 
 ---
 [//]: # (######################################################### SLIDE 11 #########################################################)
+
+<Notes>
+
+- Explain msgid vs msgstr
+
+</Notes>
 
 <CodeSurfer theme={shellTheme}>
 
@@ -494,14 +500,32 @@ $ yarn lingui extract
 
 ```bash subtitle="Extract strings from our code"
 # After we are done with making code changes. We run this in a terminal.
+# This extracts from the whole codebase and takes around 35 seconds.
 $ yarn lingui extract
 
 # Our pre-commit git hook runs this command (disabled for now)
 # This extracts from the changed files and usually takes a couple of seconds.
 $ yarn lingui extract $(git diff --name-only --staged)
+
+
+#  Options:
+#   --config <path>          Path to the config file
+#   --locale <locale>        Only extract the specified locale
+#   --overwrite              Overwrite translations for source locale
+#   --clean                  Remove obsolete translations
+#   --debounce <delay>       Debounces extraction for given amount of milliseconds
+#   --verbose                Verbose output
+#   --convert-from <format>  Convert from previous format of message catalogs
+#   --watch                  Enables Watch Mode
+#   --babelOptions           Babel options passed to transform/extract plugins
+#   --format <format>        Format of message catalogs
 ```
 
 ```text subtitle="./src/_locales/en/messages.po"
+# This is what the messages.po file looks like.
+# The english version gets msgstr values automatically.
+
+
 #: src/common/components/Component.tsx:9
 msgid "Wafer fruitcake pie tart donut cheesecake"
 msgstr "Wafer fruitcake pie tart donut cheesecake"
@@ -515,7 +539,12 @@ msgid "<0>Eat me</0>"
 msgstr "<0>Eat me</0>"
 ```
 
-```text subtitle="Same strings used in different components are combined"
+```text
+# This is what the messages.po file looks like.
+# The english version gets msgstr values automatically.
+# Strings used in multiple places will be combined.
+
+
 #: src/common/components/Component.tsx:9
 #: src/common/components/AnotherComponent.tsx:18
 msgid "Wafer fruitcake pie tart donut cheesecake"
@@ -530,7 +559,55 @@ msgid "<0>Eat me</0>"
 msgstr "<0>Eat me</0>"
 ```
 
-```text subtitle="With additional languages, we will get an empty msgstr."
+```text
+# Let's say we change some text and then run the extraction.
+# The old translation will be marked as obsolete and a new entry is added.
+$ yarn lingui extract
+
+
+#: src/common/components/Component.tsx:9
+#: src/common/components/AnotherComponent.tsx:18
+#~ msgid "Wafer fruitcake pie tart donut cheesecake"
+#~ msgstr "Wafer fruitcake pie tart donut cheesecake"
+
+#: src/common/components/Component.tsx:9
+#: src/common/components/AnotherComponent.tsx:18
+msgid "Wafer fruitcake pie tart donut fruitcake"
+msgstr "Wafer fruitcake pie tart donut fruitcake"
+
+#: src/common/components/Component.tsx:11
+msgid "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+
+#: src/common/components/Component.tsx:16
+msgid "<0>Eat me</0>"
+msgstr "<0>Eat me</0>"
+```
+
+```text 1:16
+# But if we run it with the --clean flag, the old translation is removed.
+$ yarn lingui extract --clean
+
+
+#: src/common/components/Component.tsx:9
+#: src/common/components/AnotherComponent.tsx:18
+msgid "Wafer fruitcake pie tart donut fruitcake"
+msgstr "Wafer fruitcake pie tart donut fruitcake"
+
+#: src/common/components/Component.tsx:11
+msgid "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+
+#: src/common/components/Component.tsx:16
+msgid "<0>Eat me</0>"
+msgstr "<0>Eat me</0>"
+```
+
+```text 1:15
+# If we had more than one language, any additional messages.po will contain empty msgstr
+# They will fall back to english by default if a translation is not found.
+
+
 #: src/common/components/Component.tsx:9
 msgid "Wafer fruitcake pie tart donut cheesecake"
 msgstr ""
