@@ -607,7 +607,7 @@ msgid "This is my message"
 ```js 3:9
 import { t } from '@lingui/macros';
 
-// Template literals works as you would expect
+// Template literals work as you would expect
 const type = t`awesome`;
 const message = t`This is my ${type} message`;
 
@@ -668,7 +668,7 @@ return (
 );
 
 // Extracted as:
-msgid: "<0>My title</0><1>My first paragraph</1><2>My second paragraph</2>"
+msgid "<0>My title</0><1>My first paragraph</1><2>My second paragraph</2>"
 ```
 
 ```js
@@ -687,7 +687,7 @@ return (
 
 // Extracted as:
 msgid "paragraph"
-msgid: "<0>My title</0><1>My first {type}</1><2>My second {type}</2>"
+msgid "<0>My title</0><1>My first {type}</1><2>My second {type}</2>"
 ```
 
 ```js 3:5,9:13,17:18
@@ -708,7 +708,7 @@ return (
 );
 
 // Extracted as:
-msgid: "<0>My title</0><1/>"
+msgid "<0>My title</0><1/>"
 ```
 
 ```js 3,7:15,19:22
@@ -731,9 +731,9 @@ return (
 );
 
 // Extracted as:
-msgid: "<0>My title</0><1/>"
-msgid: "My first paragraph"
-msgid: "My second paragraph"
+msgid "<0>My title</0><1/>"
+msgid "My first paragraph"
+msgid "My second paragraph"
 ```
 
 </CodeSurfer>
@@ -865,7 +865,7 @@ msgid "{count, plural, =0 {Nothing here} =1 {One thing} =2 {Two things} other {{
 ```js 3:22
 import { plural, Plural } from '@lingui/macros';
 
-// Which brings me to another pitfall. Beware of "zero".
+// Which brings us to another pitfall. Beware of "zero".
 // I honestly don't fully understand why "zero" even exists, but this statement is from the docs:
 // Because english doesn't have zero plural form, this will not act as you would expect.
 
@@ -927,7 +927,7 @@ msgid "
 <CodeSurfer theme={jsTheme}>
 
 ```js
-// Select macros behave like switch statements
+// The select macro behaves like a switch statement
 import { select, Select } from '@lingui/macros';
 
 // It will always return a string
@@ -952,7 +952,7 @@ msgid "{0, select, cat {A cat} dog {A dog} other {Unknown}"
 ```
 
 ```js
-// Select macros behave like switch statements
+// The select macro behaves like a switch statement
 import { select, Select } from '@lingui/macros';
 
 // There are two pitfalls here and I actually started to avoid using select in many cases.
@@ -979,7 +979,7 @@ const message = select(animal, {
 ```
 
 ```js
-// Select macros behave like switch statements
+// The select macro behaves like a switch statement
 import { select, Select } from '@lingui/macros';
 
 // You might be better off just using switch statements.
@@ -1010,7 +1010,7 @@ switch(animal) {
 ```
 
 ```js 4:24
-// Select macros behave like switch statements
+// The select macro behaves like a switch statement
 import { select, Select } from '@lingui/macros';
 
 // Or use object mapping
