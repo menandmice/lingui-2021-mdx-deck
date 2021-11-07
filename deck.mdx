@@ -24,7 +24,7 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 ---
 [//]: # (######################################################### SLIDE 2 #########################################################)
 
-# Let's go over our current solution:
+# Let's go over our previous solution:
 <ul>
 	<Steps>
 		<li>Homemade / Unique</li>
@@ -52,7 +52,7 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 ---
 [//]: # (######################################################### SLIDE 4 #########################################################)
 
-# So how have we been implementing translations so far?
+## So how have we been implementing translations so far?
 
 ---
 [//]: # (######################################################### SLIDE 5 #########################################################)
@@ -469,50 +469,74 @@ export function Component({ count }) {
 # CLI
 
 ---
+[//]: # (######################################################### SLIDE 11 #########################################################)
 
 <CodeSurfer theme={shellTheme}>
 
-```bash title="Extract strings from our code"
+```bash subtitle="Extract strings from our code"
 # After we are done with making code changes. We run this in a terminal.
+# This extracts from the whole codebase and takes around 35 seconds.
 $ yarn lingui extract
+
+
+#  Options:
+#   --config <path>          Path to the config file
+#   --locale <locale>        Only extract the specified locale
+#   --overwrite              Overwrite translations for source locale
+#   --clean                  Remove obsolete translations
+#   --debounce <delay>       Debounces extraction for given amount of milliseconds
+#   --verbose                Verbose output
+#   --convert-from <format>  Convert from previous format of message catalogs
+#   --watch                  Enables Watch Mode
+#   --babelOptions           Babel options passed to transform/extract plugins
+#   --format <format>        Format of message catalogs
 ```
 
-```text title="./src/_locales/en/messages.po" subtitle="Notice that the english text is both the msgid and the msgstr"
+```bash subtitle="Extract strings from our code"
+# After we are done with making code changes. We run this in a terminal.
+$ yarn lingui extract
+
+# Our pre-commit git hook runs this command (disabled for now)
+# This extracts from the changed files and usually takes a couple of seconds.
+$ yarn lingui extract $(git diff --name-only --staged)
+```
+
+```text subtitle="./src/_locales/en/messages.po"
 #: src/common/components/Component.tsx:9
 msgid "Wafer fruitcake pie tart donut cheesecake"
 msgstr "Wafer fruitcake pie tart donut cheesecake"
 
 #: src/common/components/Component.tsx:11
-msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
-msgstr "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgid "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
 
 #: src/common/components/Component.tsx:16
 msgid "<0>Eat me</0>"
 msgstr "<0>Eat me</0>"
 ```
 
-```text title="If another component is using the same text, the exctraction command will append the file location"
+```text subtitle="Same strings used in different components are combined"
 #: src/common/components/Component.tsx:9
 #: src/common/components/AnotherComponent.tsx:18
 msgid "Wafer fruitcake pie tart donut cheesecake"
 msgstr "Wafer fruitcake pie tart donut cheesecake"
 
 #: src/common/components/Component.tsx:11
-msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
-msgstr "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgid "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
 
 #: src/common/components/Component.tsx:16
 msgid "<0>Eat me</0>"
 msgstr "<0>Eat me</0>"
 ```
 
-```text title="With additional languages, we will get an empty msgstr."
+```text subtitle="With additional languages, we will get an empty msgstr."
 #: src/common/components/Component.tsx:9
 msgid "Wafer fruitcake pie tart donut cheesecake"
 msgstr ""
 
 #: src/common/components/Component.tsx:11
-msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgid "{count, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
 msgstr ""
 
 #: src/common/components/Component.tsx:16
@@ -520,20 +544,53 @@ msgid "<0>Eat me</0>"
 msgstr ""
 ```
 
+```bash subtitle="Compile po files to messages.js"
+# We don't need to use this one but I want to show it to you anyway.
+$ yarn lingui compile
+
+
+# Options:
+#   --config <path>          Path to the config file
+#   --strict                 Disable defaults for missing translations
+#   --verbose                Verbose output
+#   --format <format>        Format of message catalog
+#   --typescript             Create Typescript definition for compiled bundle
+#   --namespace <namespace>  Specify namespace for compiled bundle. Ex: cjs(default) -> module.exports, es -> export, window.test -> window.test
+#   --watch                  Enables Watch Mode
+#   --debounce <delay>       Debounces compilation for given amount of milliseconds
+```
+
+```json 9:10 subtitle="I added a couple of scripts to package.json"
+"scripts": {
+	...
+	"test:nowatch": "cross-env CI=true craco test",
+	"test:debug": "yarn test:nowatch --runInBand --useStderr",
+	"eject": "react-scripts eject",
+	"lint:ts": "tsc -p .",
+	"lint:css": "stylelint \"./src/**/*.tsx\" --cache",
+	"lint:js": "eslint --cache --max-warnings 0 \"{src,cypress}/**/*.{ts,tsx}\"",
+	"po:extract": "lingui extract --clean",
+	"po:compile": "lingui compile",
+	"validate": "run-p lint:*",
+	"check": "yarn test:nowatch ; yarn run validate",
+	...
+},
+```
+
 </CodeSurfer>
 
 ---
-[//]: # (######################################################### SLIDE 11 #########################################################)
+[//]: # (######################################################### SLIDE 12 #########################################################)
 
-# Let's take a closer look at those macros
+# A closer look at macros
 
 ---
-[//]: # (######################################################### SLIDE 12 - T MACRO #########################################################)
+[//]: # (######################################################### SLIDE 13 - T MACRO #########################################################)
 
 # t
 
 ---
-[//]: # (######################################################### SLIDE 13 - T MACRO #########################################################)
+[//]: # (######################################################### SLIDE 14 - T MACRO #########################################################)
 
 <CodeSurfer theme={jsTheme}>
 
@@ -545,6 +602,18 @@ const message = t`This is my message`;
 
 // Extraced as:
 msgid "This is my message"
+```
+
+```js 3:9
+import { t } from '@lingui/macros';
+
+// Template literals works as you would expect
+const type = t`awesome`;
+const message = t`This is my ${type} message`;
+
+// Extraced as:
+msgid "awesome"
+msgid "This is my {type} message"
 ```
 
 ```js
@@ -567,12 +636,12 @@ return <p>{statement}{animal}</p>;
 </CodeSurfer>
 
 ---
-[//]: # (######################################################### SLIDE 14 TRANS MACRO #########################################################)
+[//]: # (######################################################### SLIDE 15 TRANS MACRO #########################################################)
 
 # Trans
 
 ---
-[//]: # (######################################################### SLIDE 15 - TRANS MACRO #########################################################)
+[//]: # (######################################################### SLIDE 16 - TRANS MACRO #########################################################)
 
 <CodeSurfer theme={jsTheme}>
 
@@ -602,11 +671,31 @@ return (
 msgid: "<0>My title</0><1>My first paragraph</1><2>My second paragraph</2>"
 ```
 
-```js 3:4,8:12,16:17
+```js
+import { Trans } from '@lingui/macros';
+
+// You can use variables
+const type = <Trans>paragraph</Trans>;
+
+return (
+	<Trans>
+		<h1>My title</h1>
+		<p>My first {type}</p>
+		<p>My second {type}</p>
+	</Trans>
+);
+
+// Extracted as:
+msgid "paragraph"
+msgid: "<0>My title</0><1>My first {type}</1><2>My second {type}</2>"
+```
+
+```js 3:5,9:13,17:18
 import { Trans } from '@lingui/macros';
 
 // But there is a pitfall that everyone should be aware of.
-// It will NOT automatically figure out conditionals for you, so this will not work:
+// It will NOT automatically figure out conditionals for you.
+// This will not work:
 return (
 	<Trans>
 		<h1>My title</h1>
@@ -622,7 +711,7 @@ return (
 msgid: "<0>My title</0><1/>"
 ```
 
-```js
+```js 3,7:15,19:22
 import { Trans } from '@lingui/macros';
 
 // You would need to work around it. This is one way to do it.
@@ -650,12 +739,12 @@ msgid: "My second paragraph"
 </CodeSurfer>
 
 ---
-[//]: # (######################################################### SLIDE 16 PLURAL MACROs #########################################################)
+[//]: # (######################################################### SLIDE 17 PLURAL MACROS #########################################################)
 
 # Plurals
 
 ---
-[//]: # (######################################################### SLIDE 17 - PLURAL MACROS #########################################################)
+[//]: # (######################################################### SLIDE 18 - PLURAL MACROS #########################################################)
 
 <CodeSurfer theme={jsTheme}>
 
@@ -678,7 +767,7 @@ const jsxPluralMessage = (
 );
 
 // Extracted as:
-msgid "{0, plural, one {One thing} other {{count} things}"
+msgid "{count, plural, one {One thing} other {{count} things}"
 ```
 
 ```js
@@ -699,7 +788,7 @@ const jsxPluralMessage = (
 );
 
 // Extracted as:
-msgid "{0, plural, one {One thing} other {# things}"
+msgid "{count, plural, one {One thing} other {# things}"
 ```
 
 ```js
@@ -714,7 +803,7 @@ const pluralMessage = plural(count, {
 });
 
 // Extracted as:
-msgid "{0, plural, one {#{id} has one thing} other {#{id} as {count} things}"
+msgid "{count, plural, one {#{id} has one thing} other {#{id} as {count} things}"
 
 // Expected values:
 "#1 has one thing"
@@ -737,7 +826,7 @@ const pluralMessage = plural(count, {
 });
 
 // Extracted as:
-msgid "{0, plural, one {{id} has one thing} other {{id} as {count} things}"
+msgid "{count, plural, one {{id} has one thing} other {{id} as {count} things}"
 
 // Expected values:
 "#1 has one thing"
@@ -770,7 +859,7 @@ const jsxPluralMessage = (
 );
 
 // Extracted as:
-msgid "{0, plural, =0 {Nothing here} =1 {One thing} =2 {Two things} other {{count} things}"
+msgid "{count, plural, =0 {Nothing here} =1 {One thing} =2 {Two things} other {{count} things}"
 ```
 
 ```js 3:22
@@ -828,12 +917,12 @@ msgid "
 </CodeSurfer>
 
 ---
-[//]: # (######################################################### SLIDE 18 PLURAL MACROS #########################################################)
+[//]: # (######################################################### SLIDE 19 SELECT MACROS #########################################################)
 
 # Select
 
 ---
-[//]: # (######################################################### SLIDE 19 SELECT MACROS #########################################################)
+[//]: # (######################################################### SLIDE 20 SELECT MACROS #########################################################)
 
 <CodeSurfer theme={jsTheme}>
 
@@ -950,11 +1039,50 @@ return animalPluralMap[animal] || t`Unknown`;
 </CodeSurfer>
 
 ---
-[//]: # (######################################################### SLIDE 20 #########################################################)
+[//]: # (######################################################### SLIDE 21 SELECT ORDINAL MACROS #########################################################)
+
+# SelectOrdinal
+
+---
+[//]: # (######################################################### SLIDE 22 SELECT ORDINAL MACROS #########################################################)
+
+<CodeSurfer theme={jsTheme}>
+
+```js
+// This one I havent used yet but let's briefly see how it works.
+import { selectOrdinal, SelectOrdinal } from '@lingui/macros';
+
+// it's similar to plural but instead of using cardinal plural forms it uses ordinal forms:
+const message = selectOrdinal(count, {
+   one: '1st',
+   two: '2nd',
+   few: '3rd',
+   other: '#th',
+})
+
+// JSX version
+const jsxMessage = (
+	<SelectOrdinal
+		value={count}
+		one="1st"
+		two="2nd"
+		few="3rd"
+		other="#th"
+	/>
+);
+
+// Extracted as:
+msgid "{count, selectOrdinal, one {1st} two {2nd} few {3rd} other {#th}}"
+```
+
+</CodeSurfer>
+
+---
+[//]: # (######################################################### SLIDE 23 #########################################################)
 
 # Now go RTFM at lingui.js.org
 
 ---
-[//]: # (######################################################### SLIDE 21 #########################################################)
+[//]: # (######################################################### SLIDE 24 #########################################################)
 
 # Questions?
