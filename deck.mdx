@@ -1,5 +1,5 @@
 import { CodeSurfer, CodeSurferColumns, Step } from 'code-surfer';
-import { vsDark } from "@code-surfer/themes"
+import { vsDark as jsTheme, dracula as shellTheme } from "@code-surfer/themes"
 
 <Header>
 
@@ -66,7 +66,7 @@ Please turn on your webcam so I don't feel like I'm speaking to a wall.
 
 </Notes>
 
-<CodeSurferColumns themes={[vsDark]}>
+<CodeSurferColumns themes={[jsTheme]}>
 
 <Step>
 
@@ -243,15 +243,15 @@ export function Component({ plural, type }) {
 		<li>This means we have a blind spot to gramar mistakes and context.</li>
 		<li>We have translation files all over the place, making the codebase very noisy.</li>
 		<li>
-			It adds extra steps when searching for code based on texts.
+			And my personal "favorite". It adds extra steps when searching for code based on texts.
 			<ol>
 				<li>Search for text and open the po.ts file</li>
 				<li>Find the object property name</li>
 				<li>Search for either "po.propertyName" or "translations.propertyName"</li>
-				<li>You have found your code</li>
+				<li>You have finally found your code. *sigh*</li>
 			</ol>
 		</li>
-		<li>And probably more that I haven't even thought of.</li>
+		<li>(There are probably more quirks that I haven't even thought of.)</li>
 	</Steps>
 </ul>
 
@@ -263,7 +263,7 @@ export function Component({ plural, type }) {
 ---
 [//]: # (######################################################### SLIDE 8 #########################################################)
 
-<CodeSurferColumns themes={[vsDark]}>
+<CodeSurferColumns themes={[jsTheme]}>
 
 <Step>
 
@@ -292,7 +292,7 @@ export function Component({ count }) {
 
 import {
 	t, 		// for pure strings
-	Trans 	// for wrapping strings inside JSX
+	Trans, 	// for wrapping strings inside JSX
 } from '@lingui/macro';
 
 export function Component({ count }) {
@@ -319,7 +319,7 @@ export function Component({ count }) {
 
 import {
 	t, 		// for pure strings
-	Trans 	// for wrapping strings inside JSX
+	Trans, 	// for wrapping strings inside JSX
 } from '@lingui/macro';
 
 export function Component({ count }) {
@@ -349,7 +349,7 @@ export function Component({ count }) {
 
 import {
 	t, 		// for pure strings
-	Trans 	// for wrapping strings inside JSX
+	Trans, 	// for wrapping strings inside JSX
 } from '@lingui/macro';
 
 export function Component({ count }) {
@@ -380,7 +380,7 @@ export function Component({ count }) {
 
 import {
 	t, 		// for pure strings
-	Trans 	// for wrapping strings inside JSX
+	Trans, 	// for wrapping strings inside JSX
 	plural,	// for pluralizing strings
 } from '@lingui/macro';
 
@@ -418,7 +418,7 @@ export function Component({ count }) {
 
 import {
 	t, 		// for pure strings
-	Trans 	// for wrapping strings inside JSX
+	Trans, 	// for wrapping strings inside JSX
 	Plural,	// for pluralizing strings inside JSX
 } from '@lingui/macro';
 
@@ -449,4 +449,529 @@ export function Component({ count }) {
 ---
 [//]: # (######################################################### SLIDE 9 #########################################################)
 
-## The End, Motherfucker!
+# Ok, there must be some catch, right?
+
+<ul>
+	<Steps>
+		<li>Sort of, but not really.</li>
+		<li>We do need to use a CLI command to extract the translations from the code.</li>
+		<li>We did however install husky and a hook that handles extracting translations on (git) staged files.</li>
+		<li>Turns out this partial extraction has a bug so we disabled it for now.</li>
+		<li>For now, we are forced to extract manually per PR to keep the po files in sync.</li>
+		<li>But we could make the pipelines handle this for us until this bug has been resolved. (topic for discussion later)</li>
+		<li>There is also a CLI command for compiling the po files, but we don't need it since we are using a webpack plugin for it</li>
+		<li>But let's got over the CLI process a bit...</li>
+	</Steps>
+</ul>
+
+---
+[//]: # (######################################################### SLIDE 10 #########################################################)
+
+<CodeSurfer theme={shellTheme}>
+
+```bash title="Extract strings from our code"
+# After we are done with making code changes. We run this in a terminal.
+$ yarn lingui extract
+```
+
+```text title="./src/_locales/en/messages.po" subtitle="Notice that the english text is both the msgid and the msgstr"
+#: src/common/components/Component.tsx:9
+msgid "Wafer fruitcake pie tart donut cheesecake"
+msgstr "Wafer fruitcake pie tart donut cheesecake"
+
+#: src/common/components/Component.tsx:11
+msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+
+#: src/common/components/Component.tsx:16
+msgid "<0>Eat me</0>"
+msgstr "<0>Eat me</0>"
+```
+
+```text title="If another component is using the same text, the exctraction command will append the file location"
+#: src/common/components/Component.tsx:9
+#: src/common/components/AnotherComponent.tsx:18
+msgid "Wafer fruitcake pie tart donut cheesecake"
+msgstr "Wafer fruitcake pie tart donut cheesecake"
+
+#: src/common/components/Component.tsx:11
+msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+
+#: src/common/components/Component.tsx:16
+msgid "<0>Eat me</0>"
+msgstr "<0>Eat me</0>"
+```
+
+```text title="With additional languages, we will get an empty msgstr."
+#: src/common/components/Component.tsx:9
+msgid "Wafer fruitcake pie tart donut cheesecake"
+msgstr ""
+
+#: src/common/components/Component.tsx:11
+msgid "{0, plural, one {Biscuit jelly pudding macaroon ice cream pastry.} other {{count} biscuit jelly pudding macaroon ice cream pastries.}"
+msgstr ""
+
+#: src/common/components/Component.tsx:16
+msgid "<0>Eat me</0>"
+msgstr ""
+```
+
+</CodeSurfer>
+
+---
+[//]: # (######################################################### SLIDE 11 #########################################################)
+
+# Let's take a closer look at those macros
+
+---
+[//]: # (######################################################### SLIDE 12 - T MACRO #########################################################)
+
+# t
+
+---
+[//]: # (######################################################### SLIDE 13 - T MACRO #########################################################)
+
+<CodeSurfer theme={jsTheme}>
+
+```js
+import { t } from '@lingui/macros';
+
+// it will always return a string
+const message = t`This is my message`;
+
+// Extraced as:
+msgid "This is my message"
+```
+
+```js
+import { t } from '@lingui/macros';
+
+// There is one small pitfall I've found with the "t" macro.
+// It will trim your strings, so this will not work as expected:
+const statement = t`This is my `;
+const animal = t`bunny rabbit`;
+
+return <p>{statement}{animal}</p>;
+
+// Expected return:
+<p>This is my bunny rabbit</p>
+
+// But actually returns:
+<p>This is mybunny rabbit</p>
+```
+
+</CodeSurfer>
+
+---
+[//]: # (######################################################### SLIDE 14 TRANS MACRO #########################################################)
+
+# Trans
+
+---
+[//]: # (######################################################### SLIDE 15 - TRANS MACRO #########################################################)
+
+<CodeSurfer theme={jsTheme}>
+
+```js
+import { Trans } from '@lingui/macros';
+
+// It will always return a JSX element
+const jsxMessage = <Trans>This is my message</Trans>;
+
+// Extraced as:
+msgid "This is my message"
+```
+
+```js
+import { Trans } from '@lingui/macros';
+
+// It's great for wrapping blocks of text!
+return (
+	<Trans>
+		<h1>My title</h1>
+		<p>My first paragraph</p>
+		<p>My second paragraph</p>
+	</Trans>
+);
+
+// Extracted as:
+msgid: "<0>My title</0><1>My first paragraph</1><2>My second paragraph</2>"
+```
+
+```js 4:5,9:13,17:18
+import { Trans } from '@lingui/macros';
+
+// But there is a pitfall that everyone should be aware of.
+// It will NOT automatically figure out conditionals for you, so this will not work:
+return (
+	<Trans>
+		<h1>My title</h1>
+		{condition ? (
+			<p>My first paragraph</p>
+		) : (
+			<p>My second paragraph</p>
+		)}
+	</Trans>
+);
+
+// Extracted as:
+msgid: "<0>My title</0><1/>"
+```
+
+```js
+import { Trans } from '@lingui/macros';
+
+// You would need to work around it. This is one way to do it.
+return (
+	<Trans>
+		<h1>My title</h1>
+		{condition ? (
+			<p>
+				<Trans>My first paragraph</Trans>
+			</p>
+		) : (
+			<p>
+				<Trans>My second paragraph</Trans
+			</p>
+		)}
+	</Trans>
+);
+
+// Extracted as:
+msgid: "<0>My title</0><1/>"
+msgid: "My first paragraph"
+msgid: "My second paragraph"
+```
+
+</CodeSurfer>
+
+---
+[//]: # (######################################################### SLIDE 16 PLURAL MACROs #########################################################)
+
+# Plurals
+
+---
+[//]: # (######################################################### SLIDE 17 - PLURAL MACROS #########################################################)
+
+<CodeSurfer theme={jsTheme}>
+
+```js
+import { plural, Plural } from '@lingui/macros';
+
+// It will always return a string
+const pluralMessage = plural(count, {
+	one: 'One thing',
+	other: `${count} things`,
+});
+
+// It will always return a JSX element
+const jsxPluralMessage = (
+	<Plural
+		value={count}
+		one="One thing"
+		other={`${count} things`}
+	>
+);
+
+// Extracted as:
+msgid "{0, plural, one {One thing} other {{count} things}"
+```
+
+```js
+import { plural, Plural } from '@lingui/macros';
+
+// You can also use "#" for the count value
+const pluralMessage = plural(count, {
+	one: 'One thing',
+	other: '# things',
+});
+
+const jsxPluralMessage = (
+	<Plural
+		value={count}
+		one="One thing"
+		other="# things"
+	>
+);
+
+// Extracted as:
+msgid "{0, plural, one {One thing} other {# things}"
+```
+
+```js
+import { plural, Plural } from '@lingui/macros';
+
+// Which actually brings us to a strange pitfall.
+const id = 1;
+
+const pluralMessage = plural(count, {
+	one: `#${id} has one thing`,
+	other: `#${id} has ${count} things`,
+});
+
+// Extracted as:
+msgid "{0, plural, one {#{id} has one thing} other {#{id} as {count} things}"
+
+// Expected values:
+"#1 has one thing"
+"#1 has 2 things"
+
+// Actual values:
+"11 has one thing"
+"21 has 2 things"
+```
+
+```js 3:4,7:8,11:20
+import { plural, Plural } from '@lingui/macros';
+
+// Even if the value has # in it...
+const id = '#1';
+
+const pluralMessage = plural(count, {
+	one: `${id} has one thing`,
+	other: `${id} has ${count} things`,
+});
+
+// Extracted as:
+msgid "{0, plural, one {{id} has one thing} other {{id} as {count} things}"
+
+// Expected values:
+"#1 has one thing"
+"#1 has 2 things"
+
+// Actual values:
+"11 has one thing"
+"21 has 2 things"
+```
+
+```js 3:22
+import { plural, Plural } from '@lingui/macros';
+
+// We can also define exact values
+const pluralMessage = plural(count, {
+	'=0': 'Nothing here',
+	'=1': 'One thing',
+	'=2': 'Two things',
+	other: `${count} things`,
+});
+
+const jsxPluralMessage = (
+	<Plural
+		value={count}
+		_0="Nothing here"
+		_1="One thing"
+		_2="Two things"
+		other={`${count} things`}
+	>
+);
+
+// Extracted as:
+msgid "{0, plural, =0 {Nothing here} =1 {One thing} =2 {Two things} other {{count} things}"
+```
+
+```js 3:22
+import { plural, Plural } from '@lingui/macros';
+
+// Which brings me to another pitfall. Beware of "zero".
+// I honestly don't fully understand why "zero" even exists, but this statement is from the docs:
+// Because english doesn't have zero plural form, this will not act as you would expect.
+
+const count = 0;
+
+const pluralMessage = plural(count, {
+	zero: 'Nothing here',
+	one: 'One thing',
+	other: `${count} things`,
+});
+
+// Expected value:
+"Nothing here"
+
+// Actual value:
+"0 things"
+```
+
+```js 3:27
+import { plural, Plural } from '@lingui/macros';
+
+// Plurals can also be nested to form complex messages. Here’s an example using two counters:
+const message = plural(numBooks, {
+   one: plural(numArticles, {
+      one: `1 book and 1 article`,
+      other: `1 book and ${numArticles} articles`,
+   }),
+   other: plural(numArticles, {
+      one: `${numBooks} books and 1 article`,
+      other: `${numBooks} books and ${numArticles} articles`,
+   }),
+})
+
+// Extracted as:
+msgid "
+	{numBooks, plural,
+		one {{numArticles, plural,
+			one {1 book and 1 article}
+			other {1 book and {numArticles} articles}
+		}}
+		other {{numArticles, plural,
+			one {{numBooks} books and 1 article}
+			other {{numBooks} books and {numArticles} articles}
+		}}
+	}
+"
+```
+
+</CodeSurfer>
+
+---
+[//]: # (######################################################### SLIDE 16 PLURAL MACROs #########################################################)
+
+# Select
+
+---
+[//]: # (######################################################### SLIDE 12.4 SELECT MACROS #########################################################)
+
+<CodeSurfer theme={jsTheme}>
+
+```js
+// Select macros behave like switch statements
+import { select, Select } from '@lingui/macros';
+
+// It will always return a string
+const message = select(animal, {
+	cat: 'A cat',
+	dog: 'A dog',
+	other: 'Unknown',
+});
+
+// It will always return a JSX element
+const jsxMessage = (
+	<Select
+		value={animal}
+		cat="A cat"
+		dog="A dog"
+		other="Unknown"
+	>
+);
+
+// Extracted as:
+msgid "{0, select, cat {A cat} dog {A dog} other {Unknown}"
+```
+
+```js
+// Select macros behave like switch statements
+import { select, Select } from '@lingui/macros';
+
+// There are two pitfalls here and I actually started to avoid using select in many cases.
+
+// Pitfall 1: Dynamic keys do not work.
+const message = select(animal, {
+	[Animals.Cat]: 'A cat',
+	[Animals.Dog]: 'A dog',
+	other: 'Unknown',
+});
+
+// Pitfall 2: You cannot nest it with plurals.
+const message = select(animal, {
+	cat: plural(count, {
+		one: 'A cat',
+		other: `${count} cats`,
+	}),
+	dog: plural(count, {
+		one: 'A dog',
+		other: `${count} dogs`,
+	}),
+	other: 'Unknown',
+});
+```
+
+```js
+// Select macros behave like switch statements
+import { select, Select } from '@lingui/macros';
+
+// You might be better off just using switch statements.
+switch(animal) {
+	case Animals.Cat:
+		return t`A cat`;
+	case Animals.Dog:
+		return t`A dog`;
+	default:
+		return t`Unknown`;
+}
+
+// With plurals:
+switch(animal) {
+	case Animals.Cat:
+		return plural(count, {
+			one: 'A cat',
+			other: `${count} cats`,
+		});
+	case Animals.Dog:
+		return plural(count, {
+			one: 'A dog',
+			other: `${count} dogs`,
+		});
+	default:
+		return t`Unknown`;
+}
+```
+
+```js 4:24
+// Select macros behave like switch statements
+import { select, Select } from '@lingui/macros';
+
+// Or use object mapping
+const animalMap = {
+	[Animals.Cat]: t`A cat`,
+	[Animals.Dog]: t`A dog`,
+};
+
+return animalMap[animal] || t`Unknown`;
+
+// and with plurals:
+const animalPluralMap = {
+	[Animals.Cat]: plural(count, {
+		one: 'A cat',
+		other: `${count} cats`,
+	}),
+	[Animals.Dog]: plural(count, {
+		one: 'A dog',
+		other: `${count} dogs`,
+	}),
+};
+
+return animalPluralMap[animal] || t`Unknown`;
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurferColumns themes={[jsTheme]}>
+
+<Step>
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+### Now go RTFM at lingui.js.org
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+</Step>
+
+<Step>
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+# The End
+
+<img src="./drake-yes3.png" style={{ width: 500 }} />
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+# Questions?
