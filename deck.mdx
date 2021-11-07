@@ -455,17 +455,20 @@ export function Component({ count }) {
 	<Steps>
 		<li>Sort of, but not really.</li>
 		<li>We do need to use a CLI command to extract the translations from the code.</li>
-		<li>We did however install husky and a hook that handles extracting translations on (git) staged files.</li>
+		<li>We did however install husky which adds a git hook that handles extracting translations on staged files.</li>
 		<li>Turns out this partial extraction has a bug so we disabled it for now.</li>
 		<li>For now, we are forced to extract manually per PR to keep the po files in sync.</li>
 		<li>But we could make the pipelines handle this for us until this bug has been resolved. (topic for discussion later)</li>
 		<li>There is also a CLI command for compiling the po files, but we don't need it since we are using a webpack plugin for it</li>
-		<li>But let's got over the CLI process a bit...</li>
 	</Steps>
 </ul>
 
 ---
 [//]: # (######################################################### SLIDE 10 #########################################################)
+
+# CLI
+
+---
 
 <CodeSurfer theme={shellTheme}>
 
@@ -599,7 +602,7 @@ return (
 msgid: "<0>My title</0><1>My first paragraph</1><2>My second paragraph</2>"
 ```
 
-```js 4:5,9:13,17:18
+```js 3:4,8:12,16:17
 import { Trans } from '@lingui/macros';
 
 // But there is a pitfall that everyone should be aware of.
